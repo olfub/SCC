@@ -5,8 +5,6 @@ The complexity and vastness of our world can require large models with numerous 
 
 ## Repository Information
 
-This repository is built upon the [causalLoss Repository](https://github.com/MoritzWillig/causalLoss) by Moritz Willig. The conditional interventional SPN (ciSPN) used there is adapted in such a way to also allow for counterfactual queries. In some places in the code, the `ciSPN` name is kept, but the code can deal with both interventional and counterfactual problems.
-
 ### Datasets
 
 In addition to some tabular datasets, there is a dataset on particle collision and another dataset on galaxy collision. These are created using code from two other repositories, namely [particles_in_a_box](https://github.com/ineporozhnii/particles_in_a_box) and [GalaxyCollision](https://github.com/EnguerranVidal/GalaxyCollision/tree/main), respectively. The code of these is slightly adapted and can be found in the `external` folder.
