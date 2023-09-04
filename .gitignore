@@ -1,0 +1,9 @@
+.DS_Store
+*cache*
+.idea/
+__pycache__/
+ *.pyc
+datasets/*/*
+experiments/
+external/particles_in_a_box/.idea/*
+figures/
