@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PYTHONPATH=/home/workspace/scc
-export CUDA_VISIBLE_DEVICES=0
+export PYTHONPATH=/home/workspace/SCC
+export CUDA_VISIBLE_DEVICES=13
 
 # generate dataset
 python datasets/create_galaxyCollision_dataset.py --seed 1

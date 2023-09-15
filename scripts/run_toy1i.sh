@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PYTHONPATH=/home/workspace/scc
-export CUDA_VISIBLE_DEVICES=0
+export PYTHONPATH=/home/workspace/SCC
+export CUDA_VISIBLE_DEVICES=13
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
 
 # generate dataset

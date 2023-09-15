@@ -19,7 +19,7 @@ From inside this repository, run
 and afterwards connect to the container via
 `docker run -it -v /pathtofolder/SCC:/home/workspace/SCC --name scc --gpus all scc`
 
-Navigate to the scc folder (`cd scc`) and from here you can access the code.
+Navigate to the scc folder (`cd SCC`) and from here you can access the code.
 
 ### Run the Paper Experiments
 

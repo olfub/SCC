@@ -286,10 +286,9 @@ if len(all_seeds) > 1:
                 mean_vals_per_interv[interv_desc].append(np.average(var_pdfs, axis=0))
                 std_per_interv[interv_desc].append(np.std(var_pdfs, axis=0))
 
-# TODO change following numbers dynamically depending on variable counts
 fig_len_x = 1
 fig_len_y = len(Y_vars)
-if len(Y_vars) > 4:
+if len(Y_vars) > 6:
     fig_len_x += 1
     fig_len_y = int((fig_len_y + 1) / 2)  # +1 to make sure it is always rounded up
 
@@ -366,6 +365,8 @@ for interv_desc, row in interventions:
         model_name = "iSPN" if only_interventional else "cf-SPN"
 
         for col, seed in enumerate(all_seeds):
+            if model_name == "cf-SPN":
+                col += 1  # use blue instead of green for cf-SPN, (considering single seeds)
             seed_pdf = values_per_seed[seed][interv_desc][var][1][:, 0]
             axs.flatten()[ind_var].plot(
                 vals_x,
