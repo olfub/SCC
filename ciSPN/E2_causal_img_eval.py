@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
         num_batches = int(math.ceil(len(dataset) / conf.batch_size))
         rtpt = RTPT(
-            name_initials="MW",
+            name_initials="XX",
             experiment_name="CausalLossImg Eval",
             max_iterations=num_batches,
         )

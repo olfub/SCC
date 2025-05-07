@@ -1,7 +1,7 @@
 from pathlib import Path
 
 environment = {
-    "runtime": {"initials": "FB"},
+    "runtime": {"initials": "XX"},
     "experiments": {
         "base": Path("experiments/"),
     },
