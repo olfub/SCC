@@ -1,8 +1,9 @@
 from pathlib import Path
+from itertools import combinations, product
 
 import numpy as np
-from interventionSCM import InterventionSCM, create_dataset_train_test
-import argparse
+from interventionSCM import InterventionSCM
+from eval_datasets_helper import save_TOY2_multiple
 
 """
  Inspired by TOY1, but with added randomness on each variable.
@@ -19,20 +20,16 @@ import argparse
             "H": H
 
  Any variable with an added '-cf' indicates the value for the counterfactual query.
+ This dataset in particular is based on TOY2 but contains all "inputs" (original world + intervention) exactly once, also for multiple interventions.
  
 """
-parser = argparse.ArgumentParser(description="Create TOY2 dataset.")
-parser.add_argument("--seed", type=int, default=123, help="Random seed for dataset generation.")
-args = parser.parse_args()
-seed = args.seed
 
-dataset_name = "TOY2"  # used as filename prefix
+dataset_name = "TOY2_eval_multiple"  # used as filename prefix
 save_dir = Path(f"./datasets/{dataset_name}/")  # base folder
 save = True
 save_plot_and_info = True
 
-
-class SCM_TOY2(InterventionSCM):
+class SCM_TOY2_EVAL_MULTIPLE(InterventionSCM):
     def __init__(self, seed):
         super().__init__(seed)
 
@@ -76,19 +73,26 @@ class SCM_TOY2(InterventionSCM):
             "H-cf": h,
         }
 
-    def create_data_sample(self, sample_size, domains=True):
+    def create_data_sample(self):
         # keep the random factors of C to H constant by determining the random elements first
         # (this is not necessary for A and B, since the var_takes care of that, this is possible as there are no
         # interventions on A or B)
-        negate_c = self.rng.binomial(1, 0.1, size=(sample_size, 1))
-        negate_d = self.rng.binomial(1, 0.1, size=(sample_size, 1))
-        negate_e = self.rng.binomial(1, 0.1, size=(sample_size, 1))
-        negate_f = self.rng.binomial(1, 0.1, size=(sample_size, 1))
-        negate_g = self.rng.binomial(1, 0.1, size=(sample_size, 1))
-        negate_h = self.rng.binomial(1, 0.1, size=(sample_size, 1))
+        random_factors = 8  # for each variable
+        sample_size = 2 ** random_factors
 
-        As = self.equations["A"](sample_size)
-        Bs = self.equations["B"](sample_size)
+        random_values = np.zeros((sample_size, 8), dtype=int)
+        for i in range(sample_size):
+            binary_string = format(i, f'0{random_factors}b')
+            random_values[i] = [int(bit) for bit in binary_string]
+
+        As = random_values[:,0:1]
+        Bs = random_values[:,1:2]
+        negate_c = random_values[:,2:3]
+        negate_d = random_values[:,3:4]
+        negate_e = random_values[:,4:5]
+        negate_f = random_values[:,5:6]
+        negate_g = random_values[:,6:7]
+        negate_h = random_values[:,7:8]
         Cs = self.equations["C"](sample_size, As, Bs, negate_c)
         Ds = self.equations["D"](sample_size, Cs, negate_d)
         Es = self.equations["E"](sample_size, Cs, negate_e)
@@ -141,25 +145,37 @@ exclude_vars = []  # exclude intermediate variables from the final dataset
 
 interventions = [
     (None, "None"),
-    *[(iv, f"do({iv})=UBin({iv})") for iv in intervention_vars],
+    *[(iv, f"Val_do({iv})=0") for iv in intervention_vars],
+    *[(iv, f"Val_do({iv})=1") for iv in intervention_vars],
 ]
 
+seed = 123
 np.random.seed(seed)
-N = 100000
-test_split = 0.2
+datas = []
 
-for i, interv in enumerate(interventions):
-    _, interv_desc = interv
-    scm = SCM_TOY2(seed + i)
-    create_dataset_train_test(
-        scm,
-        interv_desc,
-        N,
-        dataset_name,
-        test_split=test_split,
-        save_dir=save_dir,
-        save_plot_and_info=save_plot_and_info,
-        variable_names=variable_names,
-        variable_abrvs=variable_abrvs,
-        exclude_vars=exclude_vars,
-    )
+interv_desc = "None"
+scm = SCM_TOY2_EVAL_MULTIPLE(seed)
+scm.do(interv_desc)
+data = scm.create_data_sample()
+datas.append(([interv_desc], data))
+seed += 1
+
+
+# for different number of interventions
+for nr_ints in [1, 2, 3, 4, 5, 6]:
+    # for all combinations of nr_ints intervention_vars
+    for interv_comb in combinations(intervention_vars, nr_ints):
+        # create all combinations of 0/1 interventions
+        for interv_comb_vals in product([0, 1], repeat=nr_ints):
+            interv_comb_desc = [
+                f"Val_do({interv})={val}" for interv, val in zip(interv_comb, interv_comb_vals)
+            ]
+            # get data
+            scm = SCM_TOY2_EVAL_MULTIPLE(seed)
+            for interv in interv_comb_desc:
+                scm.do(interv)
+            data = scm.create_data_sample()
+            datas.append((interv_comb_desc, data))
+            seed += 1
+
+save_TOY2_multiple(datas, dataset_name, variable_abrvs, intervention_vars, save_dir, test=True)

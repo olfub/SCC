@@ -12,9 +12,12 @@ def get_experiment_name(
     loss2_name=None,
     loss2_factor_str=None,
     E=1,
+    param=None
 ):
     intervention_info = "knownI" if known_intervention else "hiddenI"
     exp_name = f"E{E}_{dataset}_{model_name}_{intervention_info}"
+    if param is not None:
+        exp_name += f"_{param}"
     if loss_name is not None:
         exp_name += f"_{loss_name}"
     if loss2_name is not None:

@@ -43,6 +43,10 @@ Particle collision (cf-SPN):
 Galaxy collision (cf-SPN):
 `./scripts/run_galaxy.sh`
 
+Unseen Instances:
+`./scripts/run_toy2_unseen.sh` (unseen original worlds)
+`./scripts/run_toy2_multiple.sh` (multiple interventions)
+
 The scripts move the results to the `figures/` folder.
 
 ### Run your own Experiments

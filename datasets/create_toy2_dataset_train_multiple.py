@@ -1,7 +1,9 @@
 from pathlib import Path
+from itertools import combinations
 
 import numpy as np
-from interventionSCM import InterventionSCM, create_dataset_train_test
+from interventionSCM import InterventionSCM
+from eval_datasets_helper import save_TOY2_multiple
 import argparse
 
 """
@@ -19,20 +21,30 @@ import argparse
             "H": H
 
  Any variable with an added '-cf' indicates the value for the counterfactual query.
+ This dataset in particular is based on TOY2 but support multiple interventions.
  
 """
-parser = argparse.ArgumentParser(description="Create TOY2 dataset.")
+parser = argparse.ArgumentParser(description="Create TOY2 dataset with multiple interventions.")
 parser.add_argument("--seed", type=int, default=123, help="Random seed for dataset generation.")
+parser.add_argument(
+    "--nr_int_list",
+    type=int,
+    nargs="+",
+    default=[1, 2],
+    help="List of numbers of interventions to consider (e.g., 1 2 3).",
+)
 args = parser.parse_args()
-seed = args.seed
+seed=args.seed
+nr_int_list = args.nr_int_list
 
-dataset_name = "TOY2"  # used as filename prefix
+
+dataset_name = "TOY2_train_multiple"  # used as filename prefix
+dataset_name += "_nr_int_" + "_".join([str(i) for i in nr_int_list])
 save_dir = Path(f"./datasets/{dataset_name}/")  # base folder
 save = True
 save_plot_and_info = True
 
-
-class SCM_TOY2(InterventionSCM):
+class SCM_TOY2_TRAIN_MULTIPLE(InterventionSCM):
     def __init__(self, seed):
         super().__init__(seed)
 
@@ -76,7 +88,7 @@ class SCM_TOY2(InterventionSCM):
             "H-cf": h,
         }
 
-    def create_data_sample(self, sample_size, domains=True):
+    def create_data_sample(self, sample_size):
         # keep the random factors of C to H constant by determining the random elements first
         # (this is not necessary for A and B, since the var_takes care of that, this is possible as there are no
         # interventions on A or B)
@@ -145,21 +157,30 @@ interventions = [
 ]
 
 np.random.seed(seed)
-N = 100000
-test_split = 0.2
+N = 10000
+datas = []
 
-for i, interv in enumerate(interventions):
-    _, interv_desc = interv
-    scm = SCM_TOY2(seed + i)
-    create_dataset_train_test(
-        scm,
-        interv_desc,
-        N,
-        dataset_name,
-        test_split=test_split,
-        save_dir=save_dir,
-        save_plot_and_info=save_plot_and_info,
-        variable_names=variable_names,
-        variable_abrvs=variable_abrvs,
-        exclude_vars=exclude_vars,
-    )
+interv_desc = "None"
+scm = SCM_TOY2_TRAIN_MULTIPLE(seed)
+scm.do(interv_desc)
+data = scm.create_data_sample(N)
+datas.append(([interv_desc], data))
+seed += 1
+
+
+# for different number of interventions
+for nr_ints in nr_int_list:
+    # for all combinations of nr_ints intervention_vars
+    for interv_comb in combinations(intervention_vars, nr_ints):
+        interv_comb_desc = [
+            f"do({interv})=UBin({interv})" for interv in interv_comb
+        ]
+        # get data
+        scm = SCM_TOY2_TRAIN_MULTIPLE(seed)
+        for interv in interv_comb_desc:
+            scm.do(interv)
+        data = scm.create_data_sample(N)
+        datas.append((interv_comb_desc, data))
+        seed += 1
+
+save_TOY2_multiple(datas, dataset_name, variable_abrvs, intervention_vars, save_dir, test=False)
