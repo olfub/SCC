@@ -119,7 +119,7 @@ for seed in all_seeds:
         placeholder_target_batch = None
         marginalized = None
 
-        rtpt = RTPT(name_initials='FB', experiment_name='cfSPN Evaluation', max_iterations=len(dataloader))
+        rtpt = RTPT(name_initials='XX', experiment_name='cfSPN Evaluation', max_iterations=len(dataloader))
         rtpt.start()
 
         def batch_processor(batch):
