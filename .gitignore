@@ -7,3 +7,4 @@ datasets/*/*
 experiments/
 external/particles_in_a_box/.idea/*
 figures/
+causal_flows/causal_nf/configs/*.yaml

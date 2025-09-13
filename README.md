@@ -1,13 +1,17 @@
 # Structural Causal Circuits: Probabilistic Circuits Fully Climbing the Ladder of Causality
 
 ## Abstract
-The complexity and vastness of our world can require large models with numerous variables. Unfortunately, coming up with a model that is both accurate and able to provide predictions in a reasonable amount of time can prove difficult. One possibility to help overcome such problems are sum-product networks (SPNs), probabilistic models with the ability to do inference in linear time. In this paper, we extend SPNs' capabilities to the field of causality and introduce the family of structural causal circuits (SCCs), a type of SPNs capable of answering causal questions. Starting from conventional SPNs, we "climb the ladder of causation" and show how SCCs can represent not only observational, but also interventional and counterfactual problems. We demonstrate successful application in different experiments.
+The complexity and vastness of our world can require large models with numerous variables. Unfortunately, coming up with a model that is both accurate and able to provide predictions in a reasonable amount of time can prove difficult. One possibility to help overcome such problems is sum-product networks (SPNs), probabilistic models with the ability to tractably perform inference in linear time. In this paper, we extend SPNs' capabilities to the field of causality and introduce the family of structural causal circuits (SCCs), a type of SPNs capable of answering causal questions. Starting from conventional SPNs, we "climb the ladder of causation" and show how SCCs can represent not only observational but also interventional and counterfactual problems. We demonstrate successful application in different settings, ranging from simple binary variables to physics-based simulations.
 
 ## Repository Information
 
 ### Datasets
 
 In addition to some tabular datasets, there is a dataset on particle collision and another dataset on galaxy collision. These are created using code from two other repositories, namely [particles_in_a_box](https://github.com/ineporozhnii/particles_in_a_box) and [GalaxyCollision](https://github.com/EnguerranVidal/GalaxyCollision/tree/main), respectively. The code of these is slightly adapted and can be found in the `external` folder.
+
+### Causal Normalizing Flows
+
+We used the [causal-flows repository](https://github.com/psanch21/causal-flows) to compare cf-SPNs and Causal Normalizing flows in our "Model Comparison" experiments.
 
 ## Running the Code
 
@@ -17,7 +21,7 @@ From inside this repository, run
 `docker build -f .docker/Dockerfile -t scc .`
 
 and afterwards connect to the container via
-`docker run -it -v /pathtofolder/SCC:/home/workspace/SCC --name scc --gpus all scc`
+`docker run -it -v /pathtofolder/SCC:/home/workspace/SCC --shm-size=100g --name scc --gpus all scc`
 
 Navigate to the scc folder (`cd SCC`) and from here you can access the code.
 
@@ -46,6 +50,9 @@ Galaxy collision (cf-SPN):
 Unseen Instances:
 `./scripts/run_toy2_unseen.sh` (unseen original worlds)
 `./scripts/run_toy2_multiple.sh` (multiple interventions)
+
+Model Comparison:
+`./scripts/run_large_experiments.sh`
 
 The scripts move the results to the `figures/` folder.
 
